@@ -21,6 +21,7 @@ __pycache__/
 # Donnees (ignorer le contenu mais garder le dossier)
 data/*
 !data/.gitkeep
+!data/NIPS-2017-attention-is-all-you-need-Paper.pdf
 
 # Systeme
 .DS_Store
