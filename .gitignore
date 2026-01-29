@@ -1,0 +1,30 @@
+# Environnement
+.env
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Donnees (ignorer le contenu mais garder le dossier)
+data/*
+!data/.gitkeep
+
+# Systeme
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
