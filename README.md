@@ -2,6 +2,9 @@
 
 Systeme de Retrieval-Augmented Generation (RAG) avec support multimodal permettant d'indexer et d'interroger des documents PDF et des images.
 
+## Aperçu
+<img width="1611" height="1016" alt="Image" src="https://github.com/user-attachments/assets/14edda18-5f0f-40ae-810c-0fbec7915b03" />
+
 ## Description
 
 Ce projet implémente un pipeline RAG complet qui :
