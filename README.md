@@ -57,7 +57,7 @@ Documents (PDFs, Images)
 ## Prérequis
 
 - Python 3.10+
-- Docker et Docker Compose
+- Docker 
 - Clé API Google (Gemini)
 
 ## Installation
@@ -132,21 +132,6 @@ streamlit run app.py
 ```
 
 L'application sera accessible sur `http://localhost:8501`
-
-## Structure du projet
-
-```
-rag-multimodal/
-├── app.py              # Interface Streamlit
-├── rag_core.py         # Logique RAG (retrieval + generation)
-├── ingest.py           # Pipeline d'ingestion des documents
-├── db.py               # Connexion PostgreSQL
-├── gemini_utils.py     # Utilitaires Gemini (embeddings, captioning)
-├── docker-compose.yml  # Configuration PostgreSQL + pgvector
-├── requirements.txt    # Dépendances Python
-├── data/               # Dossier des documents à indexer
-└── .env                # Variables d'environnement (non versionné)
-```
 
 ## Description des fichiers
 
@@ -238,5 +223,3 @@ Liste des dépendances Python nécessaires :
 Le plan gratuit de l'API Gemini a des limites :
 - 15 requêtes/minute
 - 1500 requêtes/jour
-
-Pour une utilisation intensive, activez la facturation sur votre projet Google Cloud.
