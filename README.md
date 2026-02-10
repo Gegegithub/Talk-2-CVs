@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![LangChain](https://img.shields.io/badge/LangChain-0.3+-green)
 ![Ollama](https://img.shields.io/badge/Ollama-Llama_3.1-orange)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+
 
 ---
 
