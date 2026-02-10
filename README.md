@@ -1,5 +1,8 @@
 # Talk2cvs
 
+##  Aperçu
+<img width="1388" height="533" alt="Image" src="https://github.com/user-attachments/assets/f54b3ec4-7e2e-4279-bcc0-377397169db1" />
+
 **Système RAG 100% local pour analyser des CVs en langage naturel**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
