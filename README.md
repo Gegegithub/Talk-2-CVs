@@ -1,225 +1,179 @@
-# RAG Multimodal
+# Talk2cvs
 
-Systeme de Retrieval-Augmented Generation (RAG) avec support multimodal permettant d'indexer et d'interroger des documents PDF et des images.
+**Système RAG 100% local pour analyser des CVs en langage naturel**
 
-## Aperçu
-<img width="1611" height="1016" alt="Image" src="https://github.com/user-attachments/assets/14edda18-5f0f-40ae-810c-0fbec7915b03" />
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![LangChain](https://img.shields.io/badge/LangChain-0.3+-green)
+![Ollama](https://img.shields.io/badge/Ollama-Llama_3.1-orange)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## Description
+---
 
-Ce projet implémente un pipeline RAG complet qui :
+##  Problématique
 
-- Extrait le texte des fichiers PDF
-- Génère des descriptions automatiques des images via Gemini
-- Stocke les embeddings dans une base de données vectorielle (PostgreSQL + pgvector)
-- Permet de poser des questions en langage naturel via une interface web
+Les recruteurs perdent du temps à lire manuellement des dizaines de CVs. Cette application permet de poser des questions en langage naturel :
 
-## Architecture
+> "Qui maîtrise Python, SQL et Kafka ?"
+
+→ Le système retourne **uniquement** les candidats correspondant à **tous** les critères, avec preuves extraites des CVs.
+
+---
+
+##  Fonctionnalités
+
+-  **100% Local** - Aucune donnée envoyée vers le cloud
+-  **Upload direct** - Glissez vos CVs via l'interface chat
+-  **Conversation naturelle** - Mémoire des échanges précédents
+-  **Statistiques** - Suivi des CVs indexés en temps réel
+-  **Interface moderne** - Style inspiré de Gemini
+
+---
+
+##  Architecture
 
 ```
-Documents (PDFs, Images)
-        |
-        v
-+------------------+
-|    Ingestion     |  <- ingest.py
-|  - Extraction    |
-|  - Chunking      |
-|  - Captioning    |
-+------------------+
-        |
-        v
-+------------------+
-|    Embeddings    |  <- gemini_utils.py
-| text-embedding-  |
-|      004         |
-+------------------+
-        |
-        v
-+------------------+
-|   PostgreSQL     |  <- db.py
-|   + pgvector     |
-+------------------+
-        |
-        v
-+------------------+
-|   Retrieval &    |  <- rag_core.py
-|   Generation     |
-|  (Gemini Flash)  |
-+------------------+
-        |
-        v
-+------------------+
-|   Interface      |  <- app.py
-|   Streamlit      |
-+------------------+
+┌─────────────────────────────────────────────────────────┐
+│                    Streamlit UI                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │ Upload PDF  │  │ Chat Input  │  │ Suggestions     │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────┐
+│                  LangChain RAG Pipeline                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │ PDF Parser  │  │ Embeddings  │  │ Chat History    │  │
+│  │ (pypdf)     │  │ (MiniLM)    │  │ (6 derniers)    │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────┐
+│  ChromaDB          │           Ollama                   │
+│  (Vector Store)    │        (Llama 3.1 8B)              │
+│  Top-15 chunks     │      Génération réponse            │
+└────────────────────┴────────────────────────────────────┘
 ```
 
-## Prérequis
+---
+
+##  Installation
+
+### Prérequis
 
 - Python 3.10+
-- Docker 
-- Clé API Google (Gemini)
+- [Ollama](https://ollama.com/download) installé
+- 8GB RAM minimum (16GB recommandé)
 
-## Installation
-
-### 1. Cloner le repository
+### Étapes
 
 ```bash
-git clone https://github.com/votre-username/rag-multimodal.git
-cd rag-multimodal
-```
+# 1. Cloner le repository
+git clone 
+cd talk2cvs
 
-### 2. Créer l'environnement virtuel
-
-```bash
+# 2. Créer un environnement virtuel
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
-```
 
-### 3. Installer les dépendances
-
-```bash
+# 3. Installer les dépendances
 pip install -r requirements.txt
-```
 
-### 4. Configurer les variables d'environnement
+# 4. Configurer l'environnement
+cp .env.example .env
 
-Créer un fichier `.env` à la racine du projet :
+# 5. Télécharger un modèle Ollama
+ollama pull llama3.1:8b   # Recommandé
 
-```env
-GOOGLE_API_KEY=votre-cle-api-gemini
-PG_HOST=localhost
-PG_PORT=5433
-PG_DB=ragdb
-PG_USER=raguser
-PG_PASSWORD=ragpass
-```
-
-Pour obtenir une clé API Gemini : [Google AI Studio](https://aistudio.google.com/apikey)
-
-### 5. Lancer la base de données
-
-```bash
-docker-compose up -d
-```
-
-### 6. Créer la table des documents
-
-```bash
-docker exec -it pgvector_rag psql -U raguser -d ragdb -c "CREATE EXTENSION IF NOT EXISTS vector; CREATE TABLE documents (id SERIAL PRIMARY KEY, source TEXT, chunk TEXT, modality TEXT, embedding vector(768));"
-```
-
-## Utilisation
-
-### Ingestion des documents
-
-Placer vos fichiers PDF et images (PNG, JPG) dans le dossier `data/`, puis exécuter :
-
-```bash
-python ingest.py
-```
-
-Le script va :
-- Extraire le texte des PDFs et le découper en chunks de 800 caractères
-- Générer des descriptions pour chaque image via Gemini Flash
-- Créer les embeddings et les stocker dans la base de données
-
-### Lancer l'interface web
-
-```bash
+# 6. Lancer l'application
 streamlit run app.py
 ```
 
-L'application sera accessible sur `http://localhost:8501`
+→ Ouvrir http://localhost:8501
 
-## Description des fichiers
+---
+##  Structure du Projet
 
-### app.py
+```
+talk2cvs/
+├── data/                    # CVs en PDF (uploadés via l'app)
+├── chroma_db/               # Base vectorielle (auto-généré)
+├── config/
+│   ├── __init__.py
+│   └── settings.py          # Configuration centralisée
+├── utils/
+│   ├── __init__.py
+│   ├── pdf_processor.py     # Parsing et chunking PDFs
+│   └── vector_store.py      # Gestion ChromaDB
+├── agents/
+│   ├── __init__.py
+│   └── recruiter_rag.py     # Pipeline RAG avec LCEL
+├── app.py                   # Interface Streamlit
+├── explore_db.py            # Script pour explorer ChromaDB
+├── run_ingestion.py         # Script d'ingestion CLI (optionnel)
+├── requirements.txt
+├── .env.example
+└── README.md
+```
 
-Point d'entrée de l'application. Ce fichier crée l'interface web avec Streamlit :
-- Affiche un champ de saisie pour poser des questions
-- Appelle le module `rag_core` pour obtenir les réponses
-- Affiche la réponse générée par le LLM à gauche
-- Montre les sources et scores de similarité à droite
+---
 
-### rag_core.py
-
-Coeur du système RAG contenant deux fonctions principales :
-- `retrieve(query, k)` : Convertit la question en embedding, effectue une recherche par similarité cosinus dans PostgreSQL et retourne les k chunks les plus pertinents
-- `answer(query, k)` : Orchestre le pipeline complet en appelant `retrieve()`, construisant le contexte à partir des chunks, puis envoyant le tout à Gemini pour générer une réponse
-
-### ingest.py
-
-Pipeline d'ingestion des documents avec les fonctions :
-- `chunk_text(text, size, overlap)` : Découpe le texte en morceaux de taille fixe avec chevauchement pour préserver le contexte
-- `ingest_pdf(path)` : Extrait le texte de chaque page d'un PDF via pypdf, le découpe en chunks et les stocke
-- `ingest_images(path)` : Envoie l'image à Gemini Flash pour obtenir une description textuelle, puis stocke cette description
-- `save_chunk(source, chunk, modality)` : Génère l'embedding du chunk et l'insère dans la base de données
-- `main()` : Parcourt le dossier `data/` et traite tous les fichiers PDF et images
-
-### db.py
-
-Module de connexion à la base de données :
-- `get_conn()` : Crée une connexion PostgreSQL en utilisant les variables d'environnement et enregistre l'extension pgvector pour manipuler les vecteurs
-
-### gemini_utils.py
-
-Utilitaires pour interagir avec l'API Gemini :
-- `embed_text(text)` : Convertit un texte en vecteur de 768 dimensions via le modèle text-embedding-004
-- `caption_image(path)` : Envoie l'image à Gemini Flash et retourne une description textuelle de 2-3 phrases optimisée pour la recherche
-
-### docker-compose.yml
-
-Configuration Docker pour lancer PostgreSQL avec l'extension pgvector :
-- Utilise l'image `pgvector/pgvector:pg16`
-- Expose le port 5433 pour éviter les conflits avec une installation PostgreSQL locale
-- Configure un volume persistant pour les données
-
-### requirements.txt
-
-Liste des dépendances Python nécessaires :
-- `google-generativeai` : Client API Gemini
-- `psycopg2-binary` : Driver PostgreSQL
-- `pgvector` : Support des vecteurs dans Python
-- `pypdf` : Extraction de texte des PDFs
-- `pillow` : Manipulation d'images
-- `python-dotenv` : Chargement des variables d'environnement
-- `tqdm` : Barres de progression
-- `streamlit` : Framework d'interface web
-
-## Technologies
+## 🛠️ Stack Technique
 
 | Composant | Technologie |
 |-----------|-------------|
-| Interface | Streamlit |
-| Base vectorielle | PostgreSQL 16 + pgvector |
-| Embeddings | Gemini text-embedding-004 (768 dim) |
-| Vision | Gemini Flash |
-| LLM | Gemini Flash |
-| Extraction PDF | pypdf |
-| Traitement images | Pillow |
+| LLM | Ollama (Llama 3.1 8B) |
+| Embeddings | sentence-transformers (all-MiniLM-L6-v2) |
+| Vector DB | ChromaDB (persistant) |
+| Framework | LangChain + LCEL |
+| Frontend | Streamlit 1.41+ |
+| PDF Parsing | pypdf |
 
-## Fonctionnement
+---
 
-### Ingestion
+##  Troubleshooting
 
-1. Les PDFs sont parsés et le texte est extrait page par page
-2. Le texte est découpé en chunks de 800 caractères avec un chevauchement de 100 caractères
-3. Les images sont envoyées à Gemini Flash pour générer une description textuelle
-4. Chaque chunk (texte ou description d'image) est converti en vecteur via l'API Gemini
-5. Les vecteurs sont stockés dans PostgreSQL avec leur source et modalité
+### "Ollama n'est pas accessible"
 
-### Requête
+```bash
+# Vérifier qu'Ollama tourne
+ollama list
 
-1. La question de l'utilisateur est convertie en vecteur
-2. Une recherche par similarité cosinus récupère les 5 chunks les plus pertinents
-3. Les chunks sont assemblés en contexte
-4. Le contexte et la question sont envoyés à Gemini Flash
-5. La réponse est affichée avec les sources utilisées
+# Démarrer le serveur
+ollama serve
+```
 
-## Limites du plan gratuit Gemini
+### "CUDA error"
 
-Le plan gratuit de l'API Gemini a des limites :
-- 15 requêtes/minute
-- 1500 requêtes/jour
+Le GPU manque de VRAM. Solutions :
+- Fermer d'autres applications GPU
+- Utiliser Mistral 7B (plus léger)
+- Passer en mode CPU : `OLLAMA_NUM_GPU=0 ollama serve`
+
+### "Candidat non trouvé"
+
+Le retriever ne trouve pas les chunks pertinents. Essayez :
+- Une question plus précise avec le nom complet
+- Vider et réimporter les CVs
+
+---
+
+## 📄 License
+
+MIT License - Libre d'utilisation et de modification
+
+---
+
+## 👤 Auteur
+
+**[Votre Nom]** - Étudiant Ingénieur IA/Big Data
+Projet de fin d'études (PFE) - 2025
+
+---
+
+## 🙏 Remerciements
+
+- [LangChain](https://langchain.com) - Framework RAG
+- [Ollama](https://ollama.com) - LLMs locaux
+- [ChromaDB](https://trychroma.com) - Base vectorielle
+- [Streamlit](https://streamlit.io) - Interface web

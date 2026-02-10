@@ -1,16 +1,22 @@
-# Environnement
-.env
-venv/
-.venv/
-env/
-
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.Python
+*$py.class
 *.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# ChromaDB
+chroma_db/
+*.db
+*.sqlite3
+
+# Environment
+.env
+.env.local
 
 # IDE
 .vscode/
@@ -18,14 +24,13 @@ __pycache__/
 *.swp
 *.swo
 
-# Donnees (ignorer le contenu mais garder le dossier)
-data/*
+# Data (optionnel : garde tes CVs privés)
+data/*.pdf
 !data/.gitkeep
-!data/NIPS-2017-attention-is-all-you-need-Paper.pdf
-
-# Systeme
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
+
+# OS
+.DS_Store
+Thumbs.db

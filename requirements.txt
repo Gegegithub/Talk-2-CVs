@@ -1,8 +1,21 @@
-google-generativeai
-psycopg2-binary
-pgvector
-pypdf
-pillow
-python-dotenv
-tqdm
-streamlit
+# LLM & Embeddings
+langchain>=0.1.0
+langchain-community>=0.0.13
+langchain-core>=0.1.0
+langchain-text-splitters>=0.0.1
+ollama>=0.1.6
+sentence-transformers>=2.3.1
+torch>=2.0.0
+
+# Vector Store
+chromadb>=0.4.22
+
+# Document Processing
+pypdf>=4.0.1
+python-dotenv>=1.0.0
+
+# Frontend
+streamlit>=1.41.0
+
+# Utils
+tqdm>=4.66.1
