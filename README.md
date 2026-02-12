@@ -1,119 +1,110 @@
-# Talk2cvs
+# Talk2CVs
 
-##  Aperçu
+## Apercu
 <img width="1388" height="533" alt="Image" src="https://github.com/user-attachments/assets/f54b3ec4-7e2e-4279-bcc0-377397169db1" />
 
-**Système RAG 100% local pour analyser des CVs en langage naturel**
+**Application 100% locale pour analyser et trier des CVs par rapport a une description de poste**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![LangChain](https://img.shields.io/badge/LangChain-0.3+-green)
 ![Ollama](https://img.shields.io/badge/Ollama-Llama_3.1-orange)
-
-
----
-
-##  Problématique
-
-Les recruteurs perdent du temps à lire manuellement des dizaines de CVs. Cette application permet de poser des questions en langage naturel :
-
-> "Qui maîtrise Python, SQL et Kafka ?"
-
-→ Le système retourne **uniquement** les candidats correspondant à **tous** les critères, avec preuves extraites des CVs.
+![Streamlit](https://img.shields.io/badge/Streamlit-1.41+-red)
 
 ---
 
-##  Fonctionnalités
+## Problematique
 
--  **100% Local** - Aucune donnée envoyée vers le cloud
--  **Upload direct** - Glissez vos CVs via l'interface chat
--  **Conversation naturelle** - Mémoire des échanges précédents
--  **Statistiques** - Suivi des CVs indexés en temps réel
--  **Interface moderne** - Style inspiré de Gemini
+Les recruteurs perdent du temps a lire manuellement des dizaines de CVs. Cette application automatise le tri :
+
+1. Upload des CVs + description du poste
+2. Le scoring par embeddings classe les candidats par pertinence
+3. Le LLM explique pourquoi chaque candidat correspond (ou pas)
+4. Navigation dans les CVs et contact des candidats en un clic
 
 ---
 
-##  Architecture
+## Fonctionnalites
+
+- **100% Local** - Aucune donnee envoyee vers le cloud
+- **Scoring intelligent** - Embeddings sur les sections pertinentes (competences, projets, experiences)
+- **Analyse LLM** - Explication detaillee pour chaque candidat retenu
+- **Apercu PDF** - Consultation des CVs directement dans l'interface
+- **Contact groupe** - Lien mailto avec tous les candidats retenus en BCC
+
+---
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Streamlit UI                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │ Upload PDF  │  │ Chat Input  │  │ Suggestions     │  │
-│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+│  ┌──────────────────┐  ┌──────────────────────────────┐ │
+│  │  Mode Analyse    │  │  Mode CVs & Contact          │ │
+│  │  Upload + Score  │  │  Carrousel PDF + Mailto      │ │
+│  └──────────────────┘  └──────────────────────────────┘ │
 └───────────────────────────┬─────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────┐
-│                  LangChain RAG Pipeline                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
-│  │ PDF Parser  │  │ Embeddings  │  │ Chat History    │  │
-│  │ (pypdf)     │  │ (MiniLM)    │  │ (6 derniers)    │  │
-│  └─────────────┘  └─────────────┘  └─────────────────┘  │
-└───────────────────────────┬─────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────┐
-│  ChromaDB          │           Ollama                   │
-│  (Vector Store)    │        (Llama 3.1 8B)              │
-│  Top-15 chunks     │      Génération réponse            │
-└────────────────────┴────────────────────────────────────┘
+│              Scoring + Analyse                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐ │
+│  │ PDF Parser  │  │ Embeddings  │  │ LLM             │ │
+│  │ (pypdf)     │  │ (MiniLM)    │  │ (Ollama)        │ │
+│  │ Extraction  │  │ Similarite  │  │ Recommandations │ │
+│  │ texte+email │  │ cosinus     │  │ detaillees      │ │
+│  └─────────────┘  └─────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-##  Installation
+## Installation
 
-### Prérequis
+### Prerequis
 
 - Python 3.10+
-- [Ollama](https://ollama.com/download) installé
-- 8GB RAM minimum (16GB recommandé)
+- [Ollama](https://ollama.com/download) installe
+- 8GB RAM minimum (16GB recommande)
 
-### Étapes
+### Etapes
 
 ```bash
 # 1. Cloner le repository
-git clone 
+git clone
 cd talk2cvs
 
-# 2. Créer un environnement virtuel
+# 2. Creer un environnement virtuel
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
-# 3. Installer les dépendances
+# 3. Installer les dependances
 pip install -r requirements.txt
 
 # 4. Configurer l'environnement
 cp .env.example .env
 
-# 5. Télécharger un modèle Ollama
-ollama pull llama3.1:8b   # Recommandé
+# 5. Telecharger un modele Ollama
+ollama pull llama3.1:8b
 
 # 6. Lancer l'application
 streamlit run app.py
 ```
 
-→ Ouvrir http://localhost:8501
+Ouvrir http://localhost:8501
 
 ---
-##  Structure du Projet
+
+## Structure du Projet
 
 ```
 talk2cvs/
-├── data/                    # CVs en PDF (uploadés via l'app)
-├── chroma_db/               # Base vectorielle (auto-généré)
 ├── config/
 │   ├── __init__.py
-│   └── settings.py          # Configuration centralisée
+│   └── settings.py          # Configuration (Ollama, Embeddings, Email)
 ├── utils/
 │   ├── __init__.py
-│   ├── pdf_processor.py     # Parsing et chunking PDFs
-│   └── vector_store.py      # Gestion ChromaDB
-├── agents/
-│   ├── __init__.py
-│   └── recruiter_rag.py     # Pipeline RAG avec LCEL
-├── app.py                   # Interface Streamlit
-├── explore_db.py            # Script pour explorer ChromaDB
-├── run_ingestion.py         # Script d'ingestion CLI (optionnel)
+│   ├── email_extractor.py   # Extraction email + nom depuis les CVs
+│   └── scoring.py           # Scoring par embeddings + similarite cosinus
+├── app.py                   # Interface Streamlit (Analyse + CVs & Contact)
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -121,14 +112,13 @@ talk2cvs/
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
 | Composant | Technologie |
 |-----------|-------------|
 | LLM | Ollama (Llama 3.1 8B) |
 | Embeddings | sentence-transformers (all-MiniLM-L6-v2) |
-| Vector DB | ChromaDB (persistant) |
-| Framework | LangChain + LCEL |
+| Scoring | Similarite cosinus entre embeddings |
 | Frontend | Streamlit 1.41+ |
 | PDF Parsing | pypdf |
 
