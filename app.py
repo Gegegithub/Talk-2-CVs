@@ -1,5 +1,5 @@
 """
-Interface Streamlit pour Talk2CVs
+Interface Streamlit pour ResumeRadar
 Mode Analyse + Mode CVs & Contact
 Premium SaaS Dark Mode UI
 """
@@ -10,7 +10,7 @@ from config.settings import TOP_CANDIDATES, EMAIL_SUBJECT, EMAIL_BODY
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Talk2CVs",
+    page_title="ResumeRadar",
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -646,7 +646,7 @@ def get_score_class(score_pct):
 # Logo
 st.sidebar.markdown("""
 <div class="sidebar-logo">
-    <span class="dot"></span> Talk2CVs
+    <span class="dot"></span> ResumeRadar
 </div>
 """, unsafe_allow_html=True)
 

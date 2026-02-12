@@ -1,4 +1,4 @@
-# Talk2CVs
+# ResumeRadar
 
 ## Apercu
 
