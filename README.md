@@ -1,7 +1,7 @@
 # Talk2CVs
 
 ## Apercu
-<img width="1388" height="533" alt="Image" src="https://github.com/user-attachments/assets/f54b3ec4-7e2e-4279-bcc0-377397169db1" />
+
 
 **Application 100% locale pour analyser et trier des CVs par rapport a une description de poste**
 
